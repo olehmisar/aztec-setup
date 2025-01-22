@@ -1,0 +1,23 @@
+services:
+  txe:
+    image: aztecprotocol/aztec:${AZTEC_VERSION}
+    environment:
+      LOG_LEVEL: info
+    volumes:
+      - ./log:/usr/src/yarn-project/aztec/log:rw
+    command: start --txe --port 8081
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://127.0.0.1:8081/status"]
+      interval: 1s
+      timeout: 1s
+      retries: 10
+
+  aztec-nargo:
+    image: aztecprotocol/aztec-nargo:${AZTEC_VERSION}
+    environment:
+      NARGO_FOREIGN_CALL_TIMEOUT: "${NARGO_TIMEOUT}"
+    working_dir: "${WORKDIR}"
+    command: "${TEST_ARGS}"
+    depends_on:
+      txe:
+        condition: service_healthy

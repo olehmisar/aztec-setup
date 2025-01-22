@@ -1,0 +1,16 @@
+name: Test Aztec Action
+on: [push, pull_request]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Run Aztec Tests
+        uses: ./ # Use the local action
+        with:
+          aztec-version: '0.71.0'
+          workdir: './test'
+          test-args: 'test --silence-warnings --oracle-resolver http://txe:8081'
+          nargo-timeout: '300000'

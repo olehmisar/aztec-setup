@@ -1,0 +1,43 @@
+name: 'Aztec Test Runner'
+description: 'Run Aztec tests using docker-compose'
+inputs:
+  aztec-version:
+    description: 'Version of Aztec to use'
+    required: false
+    default: '0.71.0'
+  workdir:
+    description: 'Working directory for tests'
+    required: false
+    default: ${{ github.workspace }}
+  test-args:
+    description: 'Arguments to pass to the test command'
+    required: false
+    default: 'test --silence-warnings --oracle-resolver http://txe:8081'
+  nargo-timeout:
+    description: 'Timeout for Nargo foreign calls (in milliseconds)'
+    required: false
+    default: '300000'
+
+runs:
+  using: "composite"
+  steps:
+    - name: Set up Docker Compose
+      shell: bash
+      env:
+        AZTEC_VERSION: ${{ inputs.aztec-version }}
+        WORKDIR: ${{ inputs.workdir }}
+        TEST_ARGS: ${{ inputs.test-args }}
+        NARGO_TIMEOUT: ${{ inputs.nargo-timeout }}
+      run: |
+        echo "Setting up test environment..."
+        docker compose -f ${{ github.action_path }}/docker-compose.yml up \
+          --force-recreate \
+          --remove-orphans \
+          --abort-on-container-exit \
+          --exit-code-from aztec-nargo
+
+    - name: Cleanup
+      if: always()
+      shell: bash
+      run: |
+        docker compose -f ${{ github.action_path }}/docker-compose.yml down --remove-orphans
