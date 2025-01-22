@@ -1,6 +1,10 @@
 name: 'Aztec Test Runner'
 description: 'Run tests using the Aztec TXE'
 inputs:
+  enable-caching:
+    description: 'Enable Docker image caching (default: true)'
+    required: false
+    default: 'true'
   aztec-version:
     description: 'Aztec Version'
     required: false
@@ -22,6 +26,7 @@ runs:
   using: "composite"
   steps:
     - name: Response Cached Images
+      if: inputs.enable-caching == 'true'
       id: cache-docker-aztec
       uses: actions/cache@v3
       with:
@@ -29,7 +34,7 @@ runs:
           key: cache-docker-aztec-${{ inputs.aztec-version }}
 
     - name: Cache Miss
-      if: steps.cache-docker-aztec.outputs.cache-hit != 'true'
+      if: inputs.enable-caching == 'true' && steps.cache-docker-aztec.outputs.cache-hit != 'true'
       shell: bash
       run: |
         docker pull aztecprotocol/aztec:${{ inputs.aztec-version }}
@@ -39,7 +44,7 @@ runs:
         docker image save aztecprotocol/aztec-nargo:${{ inputs.aztec-version }} --output ./ci/cache/docker/aztec/aztec-nargo-${{ inputs.aztec-version }}.tar
 
     - name: Cache Hit
-      if: steps.cache-docker-aztec.outputs.cache-hit == 'true'
+      if: inputs.enable-caching == 'true' && steps.cache-docker-aztec.outputs.cache-hit == 'true'
       shell: bash
       run: |
         docker image load --input ./ci/cache/docker/aztec/aztec-${{ inputs.aztec-version }}.tar
