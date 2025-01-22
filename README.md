@@ -1,6 +1,6 @@
 # Aztec Test Action
 
-This GitHub Action allows you to run Aztec tests in your CI/CD pipeline using Docker Compose.
+This GitHub Action allows you to run Aztec TXE tests in your CI/CD pipeline.
 
 ## Usage
 
@@ -58,8 +58,9 @@ jobs:
 
 ## How it Works
 
-This action:
+This action is based on the `aztec test` command from the [Aztec Sandbox](https://docs.aztec.network/guides/getting_started#install-and-run-the-sandbox).
 
+It performs the following steps:
 1. Sets up a Docker Compose environment with two services:
    - `txe`: Runs the Aztec transaction execution engine
    - `aztec-nargo`: Runs the actual tests using Nargo

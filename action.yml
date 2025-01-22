@@ -1,8 +1,8 @@
 name: 'Aztec Test Runner'
-description: 'Run Aztec tests using docker-compose'
+description: 'Run tests using the Aztec TXE'
 inputs:
   aztec-version:
-    description: 'Version of Aztec to use'
+    description: 'Aztec Version'
     required: false
     default: '0.71.0'
   workdir:
