@@ -26,11 +26,9 @@ runs:
       run: |
         docker pull aztecprotocol/aztec:${{ inputs.aztec-version }}
         docker pull aztecprotocol/aztec-nargo:${{ inputs.aztec-version }}
-        docker pull aztecprotocol/cli-wallet:${{ inputs.aztec-version }}
         mkdir -p ci/cache/docker/aztec
         docker image save aztecprotocol/aztec:${{ inputs.aztec-version }} --output ./ci/cache/docker/aztec/aztec-${{ inputs.aztec-version }}.tar
         docker image save aztecprotocol/aztec-nargo:${{ inputs.aztec-version }} --output ./ci/cache/docker/aztec/aztec-nargo-${{ inputs.aztec-version }}.tar
-        docker image save aztecprotocol/cli-wallet:${{ inputs.aztec-version }} --output ./ci/cache/docker/aztec/cli-wallet-${{ inputs.aztec-version }}.tar
 
     - name: Cache Hit
       if: inputs.enable-caching == 'true' && steps.cache-docker-aztec.outputs.cache-hit == 'true'
@@ -38,7 +36,6 @@ runs:
       run: |
         docker image load --input ./ci/cache/docker/aztec/aztec-${{ inputs.aztec-version }}.tar
         docker image load --input ./ci/cache/docker/aztec/aztec-nargo-${{ inputs.aztec-version }}.tar
-        docker image load --input ./ci/cache/docker/aztec/cli-wallet-${{ inputs.aztec-version }}.tar
 
     - name: Install Aztec
       shell: bash
