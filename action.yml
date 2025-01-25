@@ -1,5 +1,5 @@
-name: 'Aztec Test Runner'
-description: 'Run tests using the Aztec TXE'
+name: 'Aztec Setup'
+description: 'Setup Aztec and Nargo'
 inputs:
   enable-caching:
     description: 'Enable Docker image caching (default: true)'
@@ -8,18 +8,6 @@ inputs:
   aztec-version:
     description: 'Aztec Version'
     required: true
-  workdir:
-    description: 'Working directory for tests'
-    required: false
-    default: ${{ github.workspace }}
-  test-args:
-    description: 'Arguments to pass to the test command'
-    required: false
-    default: 'test --silence-warnings --oracle-resolver http://txe:8081'
-  nargo-timeout:
-    description: 'Timeout for Nargo foreign calls (in milliseconds)'
-    required: false
-    default: '300000'
 
 runs:
   using: "composite"
