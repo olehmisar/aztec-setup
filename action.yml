@@ -53,6 +53,7 @@ runs:
         docker image load --input ./ci/cache/docker/aztec/cli-wallet-${{ inputs.aztec-version }}.tar
 
     - name: Install Aztec
+      shell: bash
       run: |
         curl -s https://install.aztec.network | NON_INTERACTIVE=1 VERSION=${{ inputs.aztec-version }} bash -s
         echo "/home/runner/.aztec/bin" >> $GITHUB_PATH
