@@ -7,8 +7,7 @@ inputs:
     default: 'true'
   aztec-version:
     description: 'Aztec Version'
-    required: false
-    default: '0.71.0'
+    required: true
   workdir:
     description: 'Working directory for tests'
     required: false
@@ -39,9 +38,11 @@ runs:
       run: |
         docker pull aztecprotocol/aztec:${{ inputs.aztec-version }}
         docker pull aztecprotocol/aztec-nargo:${{ inputs.aztec-version }}
+        docker pull aztecprotocol/cli-wallet:${{ inputs.aztec-version }}
         mkdir -p ci/cache/docker/aztec
         docker image save aztecprotocol/aztec:${{ inputs.aztec-version }} --output ./ci/cache/docker/aztec/aztec-${{ inputs.aztec-version }}.tar
         docker image save aztecprotocol/aztec-nargo:${{ inputs.aztec-version }} --output ./ci/cache/docker/aztec/aztec-nargo-${{ inputs.aztec-version }}.tar
+        docker image save aztecprotocol/cli-wallet:${{ inputs.aztec-version }} --output ./ci/cache/docker/aztec/cli-wallet-${{ inputs.aztec-version }}.tar
 
     - name: Cache Hit
       if: inputs.enable-caching == 'true' && steps.cache-docker-aztec.outputs.cache-hit == 'true'
@@ -49,25 +50,9 @@ runs:
       run: |
         docker image load --input ./ci/cache/docker/aztec/aztec-${{ inputs.aztec-version }}.tar
         docker image load --input ./ci/cache/docker/aztec/aztec-nargo-${{ inputs.aztec-version }}.tar
+        docker image load --input ./ci/cache/docker/aztec/cli-wallet-${{ inputs.aztec-version }}.tar
 
-    - name: Run Tests
-      shell: bash
+    - name: Install Aztec
       run: |
-        ABS_WORKDIR=$(realpath "${{ inputs.workdir }}")
-        ENV_FILE=${{ github.action_path }}/.env
-        echo "AZTEC_VERSION=${{ inputs.aztec-version }}" > $ENV_FILE
-        echo "WORKDIR=$ABS_WORKDIR" >> $ENV_FILE
-        echo "TEST_ARGS=${{ inputs.test-args }}" >> $ENV_FILE
-        echo "NARGO_TIMEOUT=${{ inputs.nargo-timeout }}" >> $ENV_FILE
-
-        docker compose -f ${{ github.action_path }}/docker-compose.yml up \
-          --force-recreate \
-          --remove-orphans \
-          --abort-on-container-exit \
-          --exit-code-from aztec-nargo
-
-    - name: Cleanup
-      if: always()
-      shell: bash
-      run: |
-        docker compose -f ${{ github.action_path }}/docker-compose.yml down --remove-orphans
+        curl -s https://install.aztec.network | NON_INTERACTIVE=1 VERSION=${{ inputs.aztec-version }} bash -s
+        echo "/home/runner/.aztec/bin" >> $GITHUB_PATH
